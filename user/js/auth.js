@@ -84,19 +84,50 @@ const Auth = {
 async function updateProfileUI() {
     const user = await Auth.getUser();
     const profileBtn = document.getElementById('profileBtn');
-    if (!profileBtn) return;
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    // Update Header Button
+    if (profileBtn) {
+        if (user) {
+            profileBtn.innerHTML = `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#E8CC6A" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>`;
+            profileBtn.onclick = () => window.location.href = 'profile.html';
+            profileBtn.title = 'My Profile';
+        } else {
+            profileBtn.innerHTML = `<span style="font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:#E8CC6A;letter-spacing:1px;border:1px solid rgba(212,175,55,.5);padding:5px 12px;border-radius:6px;white-space:nowrap;background:rgba(212,175,55,0.1)">LOGIN</span>`;
+            profileBtn.onclick = () => {
+                Auth.setReturnUrl(window.location.href);
+                window.location.href = 'signin.html';
+            };
+            profileBtn.title = 'Sign In';
+        }
+    }
 
-    if (user) {
-        profileBtn.innerHTML = `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#E8CC6A" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>`;
-        profileBtn.onclick = () => window.location.href = 'profile.html';
-        profileBtn.title = 'My Profile';
-    } else {
-        profileBtn.innerHTML = `<span style="font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:#E8CC6A;letter-spacing:1px;border:1px solid rgba(212,175,55,.5);padding:5px 10px;border-radius:4px;white-space:nowrap">LOGIN</span>`;
-        profileBtn.onclick = () => {
-            Auth.setReturnUrl(window.location.href);
-            window.location.href = 'signin.html';
-        };
-        profileBtn.title = 'Sign In';
+    // Update Mobile Menu
+    if (mobileMenu) {
+        // Remove existing auth links if any
+        const existing = mobileMenu.querySelector('.mobile-auth-link');
+        if (existing) existing.remove();
+
+        const authLink = document.createElement('button');
+        authLink.className = 'nav-link mobile-auth-link';
+        authLink.style.display = 'block';
+        authLink.style.marginTop = '14px';
+        authLink.style.fontSize = '14px';
+        authLink.style.width = '100%';
+        authLink.style.textAlign = 'left';
+        
+        if (user) {
+            authLink.textContent = 'My Profile';
+            authLink.onclick = () => { window.location.href = 'profile.html'; toggleMobileMenu(); };
+        } else {
+            authLink.textContent = 'Login / Register';
+            authLink.onclick = () => { 
+                Auth.setReturnUrl(window.location.href);
+                window.location.href = 'signin.html';
+                toggleMobileMenu();
+            };
+        }
+        mobileMenu.appendChild(authLink);
     }
 }
 
