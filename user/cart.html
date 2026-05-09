@@ -107,23 +107,56 @@ body{font-family:'Lato',sans-serif;background:#FDFAF2;color:#2D1458;min-height:1
   .prod-img-slider{min-height:280px!important}
 }
 
-/* Thaan modal */
-#thaanModal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center}
-#thaanModal.open{display:flex}
-.thaan-box{background:linear-gradient(145deg,#1a0535,#2d0a5e);border:1px solid rgba(212,175,55,.4);border-radius:16px;padding:40px 36px;width:90%;max-width:380px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+/* Checkout Modal */
+#checkoutModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(24, 6, 38, 0.85);
+  backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeUp 0.3s ease;
+}
 
-/* Policy modal */
-#policyModal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
-#policyModal.open{display:flex}
-.policy-box{background:#FDFAF2;color:#2D1458;border:1px solid #D4AF37;border-radius:16px;width:100%;max-width:800px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);animation:fadeUp 0.3s ease}
-.policy-header{padding:24px 32px;border-bottom:1px solid rgba(212,175,55,0.2);display:flex;justify-content:space-between;align-items:center}
-.policy-body{padding:32px;overflow-y:auto;font-family:'Lato',sans-serif;line-height:1.6;font-size:15px}
-.policy-body h3{font-family:'Cinzel',serif;color:#3B0764;margin-bottom:16px;font-size:22px}
-.policy-body h4{font-family:'Cinzel',serif;color:#C9A020;margin:20px 0 10px;font-size:16px;letter-spacing:1px}
-.policy-body p{margin-bottom:12px}
-.policy-body ul{margin-bottom:20px;padding-left:20px}
-.policy-body li{margin-bottom:8px}
-.policy-footer{padding:16px 32px;border-top:1px solid rgba(212,175,55,0.1);display:flex;justify-content:flex-end}
+#checkoutModal.open {
+  display: flex;
+}
+
+.checkout-box {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.checkout-header {
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #180626, #3B0764);
+  color: #E8CC6A;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.checkout-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.checkout-footer {
+  padding: 20px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: #fcfaf5;
+}
 </style>
 </head>
 <body>
@@ -153,6 +186,26 @@ body{font-family:'Lato',sans-serif;background:#FDFAF2;color:#2D1458;min-height:1
     <div id="policyBody" class="policy-body"></div>
     <div class="policy-footer">
       <button onclick="closePolicy()" class="btn-purple" style="padding:10px 24px;border-radius:6px">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Checkout Review Modal -->
+<div id="checkoutModal">
+  <div class="checkout-box">
+    <div class="checkout-header">
+      <h3 class="cinzel" style="font-size:16px;font-weight:700;letter-spacing:1px">Review & Confirm Order</h3>
+      <button onclick="toggleCheckoutModal()" style="background:none;border:none;color:#f87171;font-size:24px;cursor:pointer">&times;</button>
+    </div>
+    <div class="checkout-body" id="checkoutModalBody">
+      <!-- Content injected by JS -->
+    </div>
+    <div class="checkout-footer">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span class="cinzel" style="font-weight:700;color:#9CA3AF;font-size:12px">TOTAL AMOUNT</span>
+        <span class="cinzel" id="modalTotalAmount" style="font-weight:700;font-size:24px;color:#3B0764">₹0</span>
+      </div>
+      <button onclick="proceedToPayment()" class="btn-gold" style="width:100%;padding:16px;border-radius:10px;font-size:14px">CONFIRM & PAY NOW →</button>
     </div>
   </div>
 </div>
@@ -382,7 +435,6 @@ async function _applyNav(state, push) {
     main.innerHTML = productDetailHTML(currentProduct); initProdSlider();
   }
   else if (state.page==='cart') { main.innerHTML = cartHTML(); window.scrollTo({top:0,behavior:'instant'}); }
-  else if (state.page==='shipping') { main.innerHTML = await shippingHTML(); window.scrollTo({top:0,behavior:'instant'}); }
 }
 
 const SUBCATS = {
@@ -403,16 +455,7 @@ const FABRIC_BGS = [
 const fabBg = id => FABRIC_BGS[String(id||'').charCodeAt(String(id||'').length-1) % FABRIC_BGS.length] || FABRIC_BGS[0];
 const parseArr = v => Array.isArray(v) ? v : (v ? (typeof v==='string'?JSON.parse(v):[]) : []);
 
-// ── INIT ──
-async function init() {
-  buildDropdowns();
-  _navStack = [{page:'cart'}];
-  _applyNav({page:'cart'}, false);
-  updateCartBadge();
-  document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-}
-
+// ── PRODUCTS ──
 async function loadProducts() {
   const { data, error } = await sb.from('products').select('*').order('created_at',{ascending:false});
   if (!error) allProducts = data || [];
@@ -1018,198 +1061,149 @@ function cartRm(idx){cart.splice(idx,1);localStorage.setItem('libas_cart',JSON.s
 async function proceedToCheckout() {
   const user = await Auth.getUser();
   if (!user) {
-    // Save return URL so user comes back here after login
-    Auth.setReturnUrl(window.location.href);
-    window.location.href = 'signin.html?next=' + encodeURIComponent(window.location.href);
+    // Save return URL with checkout flag so we return to the modal
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('checkout', '1');
+    Auth.setReturnUrl(currentUrl.toString());
+    window.location.href = 'signin.html';
     return;
   }
-  showPage('shipping');
+  openCheckoutModal();
 }
 
-async function shippingHTML() {
-  const user = await Auth.getUser();
-  const visitor = localStorage.getItem('libas_visitor') === 'true';
+async function openCheckoutModal() {
   const profile = await Auth.getProfile();
-
-  if (!user && !visitor) {
-    showPage('signup');
-    return '';
-  }
-
-  if (!user && visitor) {
-    return `<div style="max-width:640px;margin:100px auto;padding:40px 20px;text-align:center;min-height:60vh">
-      <h2 class="cinzel" style="font-size:24px;color:#3B0764">Complete Your Profile</h2>
-      <p style="margin:20px 0;color:#9CA3AF">To proceed with the order, please create an account first.</p>
-      <button class="btn-gold" onclick="window.location.href='signup.html'">Sign Up Now →</button>
-    </div>`;
-  }
-
   const total = cart.reduce((s,i)=>s+Number(i.price)*i.qty,0);
   
-  // If profile exists, show confirmation with edit option
-  if (profile) {
-    return `<div style="max-width:640px;margin:40px auto;padding:40px 20px;min-height:80vh">
-      <h2 class="cinzel" style="font-size:26px;color:#3B0764;margin-bottom:6px">Confirm Order</h2>
-      <p style="color:#9CA3AF;font-size:13px;margin-bottom:24px">Review your details before payment</p>
-
-      <!-- Delivery Details Card -->
-      <div style="background:#fff;border-radius:14px;border:1px solid rgba(212,175,55,.25);padding:28px;margin-bottom:16px;box-shadow:0 4px 20px rgba(59,7,100,.06)">
-        <div id="confirmDetails">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-            <div>
-              <p class="cinzel" style="font-size:9px;color:#C9A020;letter-spacing:2px;margin-bottom:4px">DELIVERING TO</p>
-              <p style="font-weight:700;font-size:18px;color:#2D1458">${profile.name}</p>
-              <p style="font-size:14px;color:#9CA3AF;margin-top:2px">${profile.address}${profile.city ? ', ' + profile.city : ''}${profile.pincode ? ' - ' + profile.pincode : ''}</p>
-              <p style="font-size:13px;color:#9CA3AF;margin-top:2px">📞 ${profile.phone}</p>
-            </div>
-            <button onclick="toggleEditDetails()" id="editToggleBtn" class="btn-outline" style="padding:8px 16px;border-radius:8px;white-space:nowrap;flex-shrink:0">
-              ✏️ Edit
-            </button>
-          </div>
-        </div>
-
-        <!-- Editable form (hidden by default) -->
-        <div id="editDetailsForm" style="display:none;border-top:1px solid rgba(212,175,55,.1);padding-top:20px;margin-top:4px">
-          <p class="cinzel" style="font-size:9px;color:#C9A020;letter-spacing:2px;margin-bottom:16px">EDIT DELIVERY DETAILS</p>
-          <div style="display:grid;gap:14px">
-            <div>
-              <label class="cinzel" style="font-size:10px;color:#7C3AED;display:block;margin-bottom:4px">RECEIVER NAME *</label>
-              <input id="sh_name" class="input-field" type="text" value="${profile.name || ''}"/>
-            </div>
-            <div>
-              <label class="cinzel" style="font-size:10px;color:#7C3AED;display:block;margin-bottom:4px">PHONE NUMBER *</label>
-              <input id="sh_phone" class="input-field" type="tel" value="${profile.phone || ''}" maxlength="10"/>
-            </div>
-            <div>
-              <label class="cinzel" style="font-size:10px;color:#7C3AED;display:block;margin-bottom:4px">FULL ADDRESS *</label>
-              <textarea id="sh_address" class="input-field" rows="2">${profile.address || ''}</textarea>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div>
-                <label class="cinzel" style="font-size:10px;color:#7C3AED;display:block;margin-bottom:4px">CITY *</label>
-                <input id="sh_city" class="input-field" type="text" value="${profile.city || ''}"/>
-              </div>
-              <div>
-                <label class="cinzel" style="font-size:10px;color:#7C3AED;display:block;margin-bottom:4px">PINCODE *</label>
-                <input id="sh_pincode" class="input-field" type="text" value="${profile.pincode || ''}" maxlength="6"/>
-              </div>
-            </div>
-          </div>
-          <div style="display:flex;gap:10px;margin-top:16px">
-            <button onclick="toggleEditDetails()" class="btn-outline" style="flex:1;padding:10px">Cancel</button>
-            <button onclick="saveEditedDetails()" class="btn-gold" style="flex:2;padding:10px;border-radius:6px">Save & Continue</button>
-          </div>
-        </div>
+  document.getElementById('modalTotalAmount').textContent = '₹' + total.toFixed(0);
+  
+  const body = document.getElementById('checkoutModalBody');
+  body.innerHTML = `
+    <div style="margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <p class="cinzel" style="font-size:10px;color:#C9A020;letter-spacing:2px">DELIVERY DETAILS</p>
+        <button onclick="toggleEditCheckoutForm()" class="btn-outline" style="font-size:10px;padding:4px 10px;border-radius:4px" id="checkoutEditBtn">✏️ Edit</button>
+      </div>
+      
+      <div id="checkoutDetailsDisplay" style="background:rgba(59,7,100,0.03);border:1px solid rgba(212,175,55,0.15);border-radius:12px;padding:16px">
+        <p style="font-weight:700;color:#3B0764;font-size:16px;margin-bottom:4px" id="dispName">${profile?.name || '—'}</p>
+        <p style="font-size:13px;color:#6B7280;line-height:1.5" id="dispAddr">${profile?.address || '—'}${profile?.city ? ', ' + profile.city : ''}${profile?.pincode ? ' - ' + profile.pincode : ''}</p>
+        <p style="font-size:13px;color:#3B0764;margin-top:6px;font-weight:600" id="dispPhone">📞 ${profile?.phone || '—'}</p>
       </div>
 
-      <!-- Order Summary -->
-      <div style="background:#fff;border-radius:14px;border:1px solid rgba(212,175,55,.2);padding:20px 24px;margin-bottom:16px">
-        <p class="cinzel" style="font-size:9px;color:#C9A020;letter-spacing:2px;margin-bottom:12px">ORDER SUMMARY</p>
-        ${cart.map(item => `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(212,175,55,.07)">
-            <div>
-              <p style="font-weight:600;font-size:13px">${item.name}</p>
-              <p style="font-size:11px;color:#9CA3AF">${item.brand||''} · ${item.selectedSize||''} × ${item.qty}</p>
-            </div>
-            <span class="cinzel" style="font-weight:700;color:#3B0764">₹${(Number(item.price)*item.qty).toFixed(0)}</span>
-          </div>`).join('')}
-        <div style="display:flex;justify-content:space-between;margin-top:14px;padding-top:10px">
-          <span class="cinzel" style="font-weight:700">Total</span>
-          <span class="cinzel" style="font-weight:700;font-size:22px;color:#3B0764">₹${total.toFixed(0)}</span>
+      <div id="checkoutEditForm" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed rgba(212,175,55,0.3)">
+        <div style="display:grid;gap:12px">
+          <input id="sh_name" class="input-field" type="text" placeholder="Full Name" value="${profile?.name || ''}">
+          <input id="sh_phone" class="input-field" type="tel" placeholder="Phone Number" value="${profile?.phone || ''}" maxlength="10">
+          <textarea id="sh_address" class="input-field" placeholder="Full Address" rows="2">${profile?.address || ''}</textarea>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <input id="sh_city" class="input-field" type="text" placeholder="City" value="${profile?.city || ''}">
+            <input id="sh_pincode" class="input-field" type="text" placeholder="Pincode" value="${profile?.pincode || ''}" maxlength="6">
+          </div>
+          <button onclick="saveCheckoutEdits()" class="btn-purple" style="padding:10px;border-radius:6px;font-size:11px">Update Details</button>
         </div>
       </div>
+    </div>
 
-      <button class="btn-gold" onclick="proceedToPayment()" style="width:100%;padding:16px;border-radius:10px;font-size:14px">
-        PROCEED TO PAYMENT →
-      </button>
-    </div>`;
-  }
+    <div style="margin-top:24px">
+      <p class="cinzel" style="font-size:10px;color:#C9A020;letter-spacing:2px;margin-bottom:12px">ORDER SUMMARY (${cart.length} items)</p>
+      <div style="max-height:200px;overflow-y:auto;padding-right:8px">
+        ${cart.map(it => `
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.05)">
+            <div style="flex:1;min-width:0">
+              <p style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.name}</p>
+              <p style="font-size:11px;color:#9CA3AF">${it.selectedSize || ''} × ${it.qty}</p>
+            </div>
+            <span class="cinzel" style="font-weight:700;font-size:13px;color:#3B0764">₹${(Number(it.price)*it.qty).toFixed(0)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
 
-  return `<div style="max-width:640px;margin:0 auto;padding:40px 20px;min-height:80vh"><h2 class="cinzel" style="font-size:26px;color:#3B0764">Shipping Details</h2><div style="background:#fff;border-radius:12px;border:1px solid rgba(212,175,55,.2);padding:28px;margin-top:20px;display:grid;gap:18px"><div><label class="cinzel" style="font-size:10px;color:#7C3AED">RECEIVER NAME *</label><input id="sh_name" class="input-field" type="text" placeholder="Full name"/></div><div><label class="cinzel" style="font-size:10px;color:#7C3AED">PHONE NUMBER *</label><input id="sh_phone" class="input-field" type="tel" placeholder="10-digit mobile" maxlength="10"/></div><div><label class="cinzel" style="font-size:10px;color:#7C3AED">FULL ADDRESS *</label><textarea id="sh_address" class="input-field" rows="3"></textarea></div><button class="btn-gold" onclick="proceedToPayment()" style="width:100%;padding:16px;border-radius:8px">PROCEED TO PAYMENT</button></div></div>`;
+  document.getElementById('checkoutModal').classList.add('open');
+  
+  // If profile incomplete, auto-open edit form
+  if (!profile?.name || !profile?.address) toggleEditCheckoutForm();
 }
 
-// Toggle the edit form in checkout
-function toggleEditDetails() {
-  const form = document.getElementById('editDetailsForm');
-  const btn  = document.getElementById('editToggleBtn');
+function toggleCheckoutModal() {
+  document.getElementById('checkoutModal').classList.remove('open');
+}
+
+function toggleEditCheckoutForm() {
+  const form = document.getElementById('checkoutEditForm');
+  const disp = document.getElementById('checkoutDetailsDisplay');
+  const btn  = document.getElementById('checkoutEditBtn');
   if (!form) return;
-  const isOpen = form.style.display !== 'none';
-  form.style.display = isOpen ? 'none' : 'block';
-  if (btn) btn.textContent = isOpen ? '✏️ Edit' : '✕ Cancel';
+  const isHidden = form.style.display === 'none';
+  form.style.display = isHidden ? 'block' : 'none';
+  disp.style.opacity = isHidden ? '0.4' : '1';
+  btn.textContent = isHidden ? '✕ Cancel' : '✏️ Edit';
 }
 
-// Validate & save edited details then close form
-function saveEditedDetails() {
-  const name    = document.getElementById('sh_name')?.value.trim();
-  const phone   = document.getElementById('sh_phone')?.value.trim();
-  const address = document.getElementById('sh_address')?.value.trim();
-  const city    = document.getElementById('sh_city')?.value.trim();
-  const pincode = document.getElementById('sh_pincode')?.value.trim();
-  if (!name || !phone || !address) { alert('Please fill all required fields'); return; }
-  // Update displayed summary
-  const details = document.getElementById('confirmDetails');
-  if (details) {
-    details.querySelector('p:nth-child(2)').textContent = name;
-    details.querySelector('p:nth-child(3)').textContent = address + (city ? ', ' + city : '') + (pincode ? ' - ' + pincode : '');
-    details.querySelector('p:nth-child(4)').textContent = '📞 ' + phone;
-  }
-  toggleEditDetails();
+function saveCheckoutEdits() {
+  const name = document.getElementById('sh_name').value.trim();
+  const addr = document.getElementById('sh_address').value.trim();
+  const phone = document.getElementById('sh_phone').value.trim();
+  const city = document.getElementById('sh_city').value.trim();
+  const pin = document.getElementById('sh_pincode').value.trim();
+
+  if (!name || !addr || !phone) { alert('Name, Address and Phone are required.'); return; }
+
+  document.getElementById('dispName').textContent = name;
+  document.getElementById('dispAddr').textContent = `${addr}${city ? ', ' + city : ''}${pin ? ' - ' + pin : ''}`;
+  document.getElementById('dispPhone').textContent = '📞 ' + phone;
+  
+  toggleEditCheckoutForm();
 }
 
 async function proceedToPayment() {
   const profile = await Auth.getProfile();
-  let name, phone, addr, city, pincode;
+  
+  // Use either edited values or profile values
+  const name    = document.getElementById('sh_name')?.value.trim()    || profile?.name;
+  const phone   = document.getElementById('sh_phone')?.value.trim()   || profile?.phone;
+  const addr    = document.getElementById('sh_address')?.value.trim() || profile?.address;
+  const city    = document.getElementById('sh_city')?.value.trim()    || profile?.city || '';
+  const pincode = document.getElementById('sh_pincode')?.value.trim() || profile?.pincode || '';
 
-  // Check if user edited the form fields
-  const editedName    = document.getElementById('sh_name')?.value.trim();
-  const editedPhone   = document.getElementById('sh_phone')?.value.trim();
-  const editedAddress = document.getElementById('sh_address')?.value.trim();
-  const editedCity    = document.getElementById('sh_city')?.value.trim();
-  const editedPincode = document.getElementById('sh_pincode')?.value.trim();
-
-  const hasEdits = editedName || editedPhone || editedAddress;
-
-  if (hasEdits) {
-    name    = editedName    || profile?.name;
-    phone   = editedPhone   || profile?.phone;
-    addr    = editedAddress || profile?.address;
-    city    = editedCity    || profile?.city || '';
-    pincode = editedPincode || profile?.pincode || '';
-  } else if (profile) {
-    name    = profile.name;
-    phone   = profile.phone;
-    addr    = profile.address;
-    city    = profile.city    || '';
-    pincode = profile.pincode || '';
-  } else {
-    name  = document.getElementById('sh_name')?.value;
-    phone = document.getElementById('sh_phone')?.value;
-    addr  = document.getElementById('sh_address')?.value;
+  if (!name || !phone || !addr) { 
+    alert('Please ensure Name, Phone and Address are provided. Click "Edit" if needed.'); 
+    if (document.getElementById('checkoutEditForm').style.display === 'none') toggleEditCheckoutForm();
+    return; 
   }
 
-  if (!name || !phone || !addr) { alert('Please fill all required fields'); return; }
-
-  const fullAddress = `${addr}${city ? ', ' + city : ''}${pincode ? ' - ' + pincode : ''}`;
   const total = cart.reduce((s,i) => s + Number(i.price)*i.qty, 0);
 
   try {
-    const orderProfile = profile || { name, phone, address: addr, city, pincode };
-    // Override shipping details with any edits
-    orderProfile.name    = name;
-    orderProfile.phone   = phone;
-    orderProfile.address = addr;
-    orderProfile.city    = city;
-    orderProfile.pincode = pincode;
-
+    const orderProfile = { name, phone, address: addr, city, pincode, id: profile?.id };
     const order = await Payment.createOrder(orderProfile, cart, total);
     await Payment.initiatePhonePePayment(order);
-
+    
     // Clear cart after payment starts
     cart = [];
     localStorage.setItem('libas_cart', '[]');
     updateCartBadge();
+    toggleCheckoutModal();
   } catch(e) {
     alert('Error initiating order: ' + e.message);
+  }
+}
+
+async function init() {
+  buildDropdowns();
+  _navStack = [{page:'home'}];
+  history.replaceState({navIndex: 0, state: {page:'home'}}, "");
+  _applyNav({page:'home'}, false);
+  updateCartBadge();
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  // Check if we came from login with a checkout intent
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('checkout') === '1') {
+    proceedToCheckout();
   }
 }
 
