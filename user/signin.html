@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧵</text></svg>"/>
+<title>Sign In – Libas Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#FDFAF2;color:#2D1458;min-height:100vh;display:flex;flex-direction:column}
+.cinzel{font-family:'Cinzel',serif}
+.gold-text{background:linear-gradient(90deg,#C9A020,#E8CC6A,#C9A020,#E8CC6A,#C9A020);background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 4s linear infinite}
+@keyframes shimmer{0%{background-position:-400% center}100%{background-position:400% center}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.auth-container{max-width:400px;margin:80px auto;padding:44px;background:#fff;border-radius:20px;border:1px solid rgba(212,175,55,.2);box-shadow:0 12px 40px rgba(59,7,100,.1);animation:fadeUp 0.5s ease both}
+.input-group{margin-bottom:22px}
+.input-label{display:block;font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;color:#C9A020;margin-bottom:8px}
+.input-field{width:100%;padding:14px 16px 14px 50px;border:1px solid rgba(212,175,55,.3);border-radius:8px;font-family:'Lato',sans-serif;font-size:15px;outline:none;transition:all 0.2s;background:#FDFAF2}
+.input-field:focus{border-color:#3B0764;background:#fff;box-shadow:0 0 0 3px rgba(59,7,100,0.06)}
+.field-wrap{position:relative}
+.field-wrap .prefix{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:14px;color:#6B7280;font-weight:600}
+.btn-gold{width:100%;padding:15px;background:linear-gradient(135deg,#C9A020,#E8CC6A,#C9A020);background-size:200% auto;color:#180626;font-family:'Cinzel',serif;font-weight:700;letter-spacing:2px;border:none;border-radius:10px;cursor:pointer;transition:all 0.3s;margin-top:4px;font-size:13px}
+.btn-gold:hover{background-position:right center;transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,175,55,0.4)}
+.btn-gold:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.auth-footer{text-align:center;margin-top:22px;font-size:13px;color:#9CA3AF}
+.auth-footer a{color:#3B0764;text-decoration:none;font-weight:700}
+.spinner{width:20px;height:20px;border:2px solid rgba(24,6,38,.2);border-top-color:#180626;border-radius:50%;animation:spin .8s linear infinite;display:none;margin:0 auto}
+.error-msg{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:18px;display:none}
+.hint{font-size:11px;color:#9CA3AF;margin-top:6px;text-align:center}
+</style>
+</head>
+<body>
+
+<header style="background:linear-gradient(180deg,#180626 0%,#3B0764 100%);padding:16px 20px;text-align:center;border-bottom:1px solid rgba(212,175,55,.15)">
+  <a href="index.html" style="text-decoration:none">
+    <span class="cinzel" style="font-size:28px;font-weight:700;letter-spacing:2px;line-height:1"><span class="gold-text">Libas</span></span>
+    <p class="cinzel" style="font-size:8px;letter-spacing:5px;color:#E8CC6A;opacity:.75;margin-top:2px">COLLECTION</p>
+  </a>
+</header>
+
+<div class="auth-container">
+  <h2 class="cinzel" style="text-align:center;font-size:22px;margin-bottom:6px;color:#3B0764">Welcome Back</h2>
+  <p style="text-align:center;font-size:13px;color:#9CA3AF;margin-bottom:28px;font-family:'Cormorant Garamond',serif">Enter your registered phone number to continue</p>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <form id="signinForm">
+    <div class="input-group">
+      <label class="input-label">Phone Number</label>
+      <div class="field-wrap">
+        <span class="prefix">+91</span>
+        <input type="tel" id="phone" class="input-field" placeholder="9270704810" maxlength="10" pattern="[0-9]{10}" required autocomplete="tel" inputmode="numeric"/>
+      </div>
+    </div>
+    <button type="submit" class="btn-gold" id="submitBtn">
+      <span id="btnText">SIGN IN →</span>
+      <div class="spinner" id="btnSpinner"></div>
+    </button>
+    <p class="hint">No password needed — just your phone number</p>
+  </form>
+
+  <div class="auth-footer">
+    New to Libas? <a href="signup.html" id="signupLink">Create Account</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/auth.js"></script>
+<script>
+const _params = new URLSearchParams(window.location.search);
+const _next = _params.get('next');
+if (_next) {
+  const sl = document.getElementById('signupLink');
+  if (sl) sl.href = `signup.html?next=${encodeURIComponent(_next)}`;
+  Auth.setReturnUrl(_next);
+}
+
+document.getElementById('signinForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const text = document.getElementById('btnText');
+  const spinner = document.getElementById('btnSpinner');
+  const errEl = document.getElementById('errorMsg');
+
+  const phone = document.getElementById('phone').value.trim();
+  if (phone.length !== 10) {
+    errEl.textContent = 'Please enter a valid 10-digit phone number.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  text.style.display = 'none';
+  spinner.style.display = 'block';
+  errEl.style.display = 'none';
+
+  try {
+    await Auth.signIn(phone);
+    const returnUrl = Auth.consumeReturnUrl();
+    window.location.href = returnUrl || 'index.html';
+  } catch (err) {
+    errEl.textContent = 'Phone number not found. Please create an account first.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    text.style.display = 'block';
+    spinner.style.display = 'none';
+  }
+};
+</script>
+</body>
+</html>
