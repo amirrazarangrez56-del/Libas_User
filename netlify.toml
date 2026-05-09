@@ -1,0 +1,15 @@
+[build]
+  # Netlify will serve files from the 'user' folder
+  publish = "user"
+
+[[redirects]]
+  # This mimics your server.js logic for clean URLs
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
