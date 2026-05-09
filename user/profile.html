@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧵</text></svg>"/>
+<title>My Profile – Libas Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#FDFAF2;color:#2D1458;min-height:100vh;display:flex;flex-direction:column}
+.cinzel{font-family:'Cinzel',serif}
+.gold-text{background:linear-gradient(90deg,#C9A020,#E8CC6A,#C9A020,#E8CC6A,#C9A020);background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 4s linear infinite}
+@keyframes shimmer{0%{background-position:-400% center}100%{background-position:400% center}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.profile-container{max-width:860px;margin:40px auto;padding:0 16px;width:100%;animation:fadeUp 0.5s ease both}
+.profile-card{background:#fff;border-radius:20px;border:1px solid rgba(212,175,55,.2);padding:28px 20px;box-shadow:0 8px 40px rgba(59,7,100,.07);margin-bottom:28px;position:relative}
+.profile-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid rgba(212,175,55,.12);flex-wrap:wrap}
+.profile-avatar{width:72px;height:72px;background:linear-gradient(135deg,#3B0764,#180626);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;color:#E8CC6A;border:3px solid #D4AF37;flex-shrink:0;font-family:'Cinzel',serif;font-weight:700}
+.profile-header-info{flex:1;min-width:0}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px}
+.info-item label{display:block;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:#C9A020;margin-bottom:5px;text-transform:uppercase}
+.info-item p{font-size:14px;font-weight:700;color:#3B0764;word-break:break-word}
+.section-title{font-family:'Cinzel',serif;font-size:18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;color:#3B0764}
+.section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(212,175,55,.4),transparent)}
+
+/* Modals */
+.modal-overlay{position:fixed;inset:0;background:rgba(24,6,38,.85);backdrop-filter:blur(8px);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;animation:fadeUp .3s ease}
+.modal-content{background:#fff;border-radius:20px;width:100%;max-width:480px;padding:32px;border:1px solid rgba(212,175,55,.3);box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.input-field{width:100%;padding:12px 14px;border:1px solid rgba(212,175,55,.4);border-radius:8px;font-family:'Lato',sans-serif;font-size:14px;margin-bottom:16px;outline:none}
+.input-field:focus{border-color:#3B0764}
+
+/* Order card */
+.order-card{background:#fff;border-radius:16px;border:1px solid rgba(212,175,55,.2);overflow:hidden;margin-bottom:16px;box-shadow:0 4px 20px rgba(59,7,100,.06);transition:box-shadow .2s}
+.order-card:hover{box-shadow:0 8px 32px rgba(59,7,100,.12)}
+.order-card-header{background:linear-gradient(135deg,#f9f5ff,#fff);padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid rgba(212,175,55,.1);flex-wrap:wrap;gap:10px}
+.order-card-body{padding:16px 18px}
+.order-item-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(212,175,55,.08)}
+.order-item-row:last-child{border-bottom:none}
+.order-item-img{width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;background:linear-gradient(135deg,#3B0764,#4c1d95);display:flex;align-items:center;justify-content:center;font-size:20px;color:#E8CC6A;overflow:hidden}
+.order-item-img img{width:100%;height:100%;object-fit:cover}
+
+/* Status badges */
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-family:'Cinzel',serif;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
+.badge-paid{background:rgba(16,185,129,.12);color:#059669;border:1px solid rgba(16,185,129,.35)}
+.badge-pending{background:rgba(245,158,11,.1);color:#D97706;border:1px solid rgba(245,158,11,.3)}
+.badge-processing{background:rgba(59,130,246,.1);color:#2563EB;border:1px solid rgba(59,130,246,.3)}
+.badge-shipped{background:rgba(139,92,246,.1);color:#7C3AED;border:1px solid rgba(139,92,246,.3)}
+.badge-delivered{background:rgba(16,185,129,.1);color:#059669;border:1px solid rgba(16,185,129,.3)}
+.badge-cancelled{background:rgba(239,68,68,.1);color:#DC2626;border:1px solid rgba(239,68,68,.3)}
+.badge-initiated{background:rgba(156,163,175,.1);color:#6B7280;border:1px solid rgba(156,163,175,.3)}
+
+.btn-gold{padding:12px 24px;background:linear-gradient(135deg,#C9A020,#E8CC6A,#C9A020);background-size:200% auto;color:#180626;font-family:'Cinzel',serif;font-weight:700;letter-spacing:2px;border:none;border-radius:8px;cursor:pointer;transition:all .3s;font-size:12px}
+.btn-gold:hover{background-position:right center;transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,175,55,.4)}
+.btn-logout{background:#ef4444;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-family:'Cinzel',serif;font-weight:700;cursor:pointer;transition:all .2s;margin-top:20px;font-size:11px;letter-spacing:1px;width:100%}
+.btn-logout:hover{background:#dc2626}
+.btn-outline{padding:8px 16px;background:transparent;border:1px solid rgba(212,175,55,.4);color:#3B0764;font-family:'Cinzel',serif;font-size:10px;font-weight:700;border-radius:6px;cursor:pointer;transition:all .2s;letter-spacing:1px;white-space:nowrap}
+.btn-outline:hover{background:#3B0764;color:#E8CC6A}
+
+#loadingScreen{position:fixed;inset:0;background:#FDFAF2;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999}
+.spinner{width:40px;height:40px;border:3px solid rgba(212,175,55,.2);border-top-color:#D4AF37;border-radius:50%;animation:spin .8s linear infinite}
+
+.empty-state{text-align:center;padding:40px 20px;color:#9CA3AF}
+.empty-state .icon{font-size:56px;margin-bottom:12px;display:block}
+
+@media(max-width:480px){
+  .profile-container{margin:20px auto;padding:0 12px}
+  .profile-card{padding:20px 16px}
+  .profile-header{flex-direction:column;align-items:center;text-align:center}
+  .profile-header-info{text-align:center}
+  .info-grid{grid-template-columns:1fr 1fr}
+  .order-card-header{flex-direction:column;gap:8px}
+  .order-card-header>div:last-child{width:100%}
+  .order-card-body{padding:14px 14px}
+}
+</style>
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <p class="cinzel" style="margin-top:16px;letter-spacing:3px;font-size:11px;color:#3B0764">LIBAS COLLECTION</p>
+</div>
+
+<header style="background:linear-gradient(180deg,#180626 0%,#3B0764 100%);padding:12px 20px;border-bottom:1px solid rgba(212,175,55,.2);position:sticky;top:0;z-index:100">
+  <div style="max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between">
+    <a href="index.html" style="text-decoration:none;display:flex;flex-direction:column">
+      <span class="cinzel" style="font-size:24px;font-weight:700;letter-spacing:2px;line-height:1"><span class="gold-text">Libas</span></span>
+      <span class="cinzel" style="font-size:7px;letter-spacing:4px;color:#E8CC6A;opacity:.75">COLLECTION</span>
+    </a>
+    <a href="index.html" class="cinzel" style="color:#E8CC6A;text-decoration:none;font-size:11px;letter-spacing:1px;border:1px solid rgba(212,175,55,0.4);padding:6px 12px;border-radius:20px;background:rgba(255,255,255,0.05)">Back to shopping</a>
+  </div>
+</header>
+
+<div class="profile-container" id="profileContent" style="display:none">
+
+  <!-- Profile Info Card -->
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="profile-avatar" id="avatarInitial">L</div>
+      <div class="profile-header-info">
+        <p class="cinzel" style="font-size:9px;letter-spacing:3px;color:#C9A020;margin-bottom:4px">MY PROFILE</p>
+        <h2 class="cinzel" id="userName" style="font-size:22px;color:#3B0764;word-break:break-word">User Name</h2>
+        <p id="userPhone" style="font-size:14px;color:#9CA3AF;margin-top:4px">Phone</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <div style="display:flex;gap:8px">
+          <a href="index.html" class="btn-outline">← Back to shopping</a>
+          <button class="btn-outline" onclick="openEditProfile()">✎ EDIT</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-item">
+        <label>Shipping Address</label>
+        <p id="userAddress">—</p>
+      </div>
+      <div class="info-item">
+        <label>City</label>
+        <p id="userCity">—</p>
+      </div>
+      <div class="info-item">
+        <label>Pincode</label>
+        <p id="userPincode">—</p>
+      </div>
+    </div>
+    
+    <button class="btn-logout" onclick="Auth.signOut()">LOGOUT</button>
+  </div>
+
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editModal" class="modal-overlay" onclick="if(event.target===this)closeEditProfile()">
+  <div class="modal-content">
+    <h3 class="cinzel" style="margin-bottom:20px;color:#3B0764">Edit Profile</h3>
+    <label style="font-size:10px;font-family:'Cinzel',serif;color:#C9A020;margin-bottom:4px;display:block">Full Name</label>
+    <input type="text" id="editName" class="input-field" placeholder="Full Name">
+    
+    <label style="font-size:10px;font-family:'Cinzel',serif;color:#C9A020;margin-bottom:4px;display:block">Shipping Address</label>
+    <input type="text" id="editAddress" class="input-field" placeholder="Street, Area, etc.">
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <label style="font-size:10px;font-family:'Cinzel',serif;color:#C9A020;margin-bottom:4px;display:block">City</label>
+        <input type="text" id="editCity" class="input-field" placeholder="City">
+      </div>
+      <div>
+        <label style="font-size:10px;font-family:'Cinzel',serif;color:#C9A020;margin-bottom:4px;display:block">Pincode</label>
+        <input type="text" id="editPincode" class="input-field" placeholder="Pincode">
+      </div>
+    </div>
+    
+    <div style="display:flex;gap:12px;margin-top:10px">
+      <button class="btn-outline" style="flex:1" onclick="closeEditProfile()">Cancel</button>
+      <button class="btn-gold" style="flex:1" onclick="saveProfileChanges()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/auth.js"></script>
+<script>
+const STATUS_BADGES = {
+  pending:    { cls: 'badge-pending',    icon: '⏳', label: 'PENDING' },
+  initiated:  { cls: 'badge-initiated',  icon: '🔄', label: 'INITIATED' },
+  paid:       { cls: 'badge-paid',       icon: '✅', label: 'PAID' },
+  success:    { cls: 'badge-paid',       icon: '✅', label: 'PAID' },
+  processing: { cls: 'badge-processing', icon: '⚙️', label: 'PROCESSING' },
+  shipped:    { cls: 'badge-shipped',    icon: '🚚', label: 'SHIPPED' },
+  delivered:  { cls: 'badge-delivered',  icon: '✅', label: 'DELIVERED' },
+  failed:     { cls: 'badge-cancelled',  icon: '❌', label: 'FAILED' },
+  cancelled:  { cls: 'badge-cancelled',  icon: '🚫', label: 'CANCELLED' },
+  new:        { cls: 'badge-pending',    icon: '🆕', label: 'NEW' },
+};
+
+function getStatusBadge(status) {
+  const sKey = (status || 'pending').toLowerCase();
+  const s = STATUS_BADGES[sKey] || { cls: 'badge-pending', icon: '⏳', label: status?.toUpperCase() || 'PENDING' };
+  return `<span class="status-badge ${s.cls}">${s.icon} ${s.label}</span>`;
+}
+
+function formatDate(d) {
+  return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+async function loadProfile() {
+  const profile = await Auth.getProfile();
+  if (!profile) {
+    window.location.href = 'signin.html';
+    return;
+  }
+
+  window._userProfile = profile; // Store for editing
+  
+  document.getElementById('userName').textContent     = profile.name || '—';
+  document.getElementById('userPhone').textContent    = profile.phone || '—';
+  document.getElementById('userAddress').textContent  = profile.address || '—';
+  document.getElementById('userCity').textContent     = profile.city || '—';
+  document.getElementById('userPincode').textContent  = profile.pincode || '—';
+  document.getElementById('avatarInitial').textContent = (profile.name||'L').charAt(0).toUpperCase();
+
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('profileContent').style.display = 'block';
+
+  await loadOrders();
+}
+
+function openEditProfile() {
+  const p = window._userProfile || {};
+  document.getElementById('editName').value    = p.name || '';
+  document.getElementById('editAddress').value = p.address || '';
+  document.getElementById('editCity').value    = p.city || '';
+  document.getElementById('editPincode').value = p.pincode || '';
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditProfile() {
+  document.getElementById('editModal').style.display = 'none';
+}
+
+async function saveProfileChanges() {
+  const user = await Auth.getUser();
+  if (!user) return;
+
+  const newProfile = {
+    name:    document.getElementById('editName').value.trim(),
+    address: document.getElementById('editAddress').value.trim(),
+    city:    document.getElementById('editCity').value.trim(),
+    pincode: document.getElementById('editPincode').value.trim()
+  };
+
+  const { error } = await sb.from('profiles').update(newProfile).eq('id', user.id);
+  if (error) { alert('Error: ' + error.message); return; }
+
+  closeEditProfile();
+  loadProfile(); // Refresh
+}
+
+async function loadOrders() {
+  const user = await Auth.getUser();
+  if (!user) return;
+
+  const { data: orders, error } = await sb
+    .from('orders')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  const container = document.getElementById('orderList');
+
+  if (error || !orders || orders.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <span class="icon">🛍️</span>
+        <p class="cinzel" style="font-size:16px;color:#3B0764;margin-bottom:8px">No Orders Yet</p>
+        <p style="font-size:14px;margin-bottom:20px">Your order history will appear here.</p>
+        <button class="btn-gold" onclick="window.location.href='index.html'">START SHOPPING</button>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = orders.map(order => {
+    let items = [];
+    try { items = Array.isArray(order.items) ? order.items : JSON.parse(order.items || '[]'); } catch(e) {}
+
+    const itemsHTML = items.map(it => `
+      <div class="order-item-row">
+        <div class="order-item-img">
+          ${it.image_url ? `<img src="${it.image_url}" alt="${it.name}" onerror="this.style.display='none'"/>` : '🧵'}
+        </div>
+        <div style="flex:1">
+          <p style="font-weight:700;font-size:14px;color:#2D1458;margin-bottom:2px">${it.name || 'Fabric'}</p>
+          <p style="font-size:11px;color:#9CA3AF">${it.brand || ''} ${it.brand && it.selectedSize ? '·' : ''} ${it.selectedSize || ''}</p>
+        </div>
+        <div style="text-align:right">
+          <p class="cinzel" style="font-weight:700;color:#3B0764;font-size:14px">₹${(Number(it.price||0) * Number(it.qty||1)).toFixed(0)}</p>
+          <p style="font-size:11px;color:#9CA3AF">Qty: ${it.qty || 1}</p>
+        </div>
+      </div>`).join('');
+
+    const paymentStatus = order.payment_status || 'pending';
+    const orderStatus   = order.order_status   || order.status || paymentStatus;
+
+    return `
+      <div class="order-card">
+        <div class="order-card-header">
+          <div>
+            <p class="cinzel" style="font-size:9px;letter-spacing:2px;color:#C9A020;margin-bottom:4px">ORDER #${order.id.substring(0,8).toUpperCase()}</p>
+            <p style="font-size:12px;color:#9CA3AF">${formatDate(order.created_at)}</p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <div>
+              <p class="cinzel" style="font-size:9px;letter-spacing:1px;color:#9CA3AF;margin-bottom:2px">PAYMENT</p>
+              ${getStatusBadge(paymentStatus)}
+            </div>
+            <div>
+              <p class="cinzel" style="font-size:9px;letter-spacing:1px;color:#9CA3AF;margin-bottom:2px">ORDER STATUS</p>
+              ${getStatusBadge(orderStatus)}
+            </div>
+          </div>
+        </div>
+        <div class="order-card-body">
+          ${itemsHTML || '<p style="color:#9CA3AF;font-size:13px;padding:8px 0">Item details unavailable.</p>'}
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(212,175,55,.1);display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <p style="font-size:12px;color:#9CA3AF">Delivered to: <strong style="color:#2D1458">${order.shipping_address || order.customer_name || '—'}</strong></p>
+              ${order.city ? `<p style="font-size:11px;color:#9CA3AF">${order.city}${order.pincode ? ' - ' + order.pincode : ''}</p>` : ''}
+            </div>
+            <div style="text-align:right">
+              <p class="cinzel" style="font-size:9px;letter-spacing:1px;color:#C9A020">TOTAL</p>
+              <p class="cinzel" style="font-size:22px;font-weight:700;color:#3B0764">₹${Number(order.total_amount||0).toFixed(0)}</p>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Subscribe to order status changes in real-time
+  sb.channel('order-updates-' + user.id)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `user_id=eq.${user.id}` }, 
+      () => loadOrders())
+    .subscribe();
+}
+
+document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+
+</body>
+</html>
